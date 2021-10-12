@@ -1,0 +1,1 @@
+* * * * * find /app/. -type d -name '*_tmpdirectory' -mmin +5 -exec rm -r {} +>>/app/log.txt

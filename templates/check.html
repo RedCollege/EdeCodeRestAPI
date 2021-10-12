@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<script src="/app/static/js/d3.v4.js"></script>
+<link rel="stylesheet" href="/app/static/css/style.css">
+
+<div id="my_dataviz"></div>
+
+<table width="50%" border="0">
+  <tbody>
+    <tr>
+      <td>Aprobado</td>
+      <td>Rechazado</td>
+      <td>Sin Datos</td>
+      <td>No verificado</td>
+    </tr>
+    <tr>
+      <td class="aprobado">&nbsp;</td>
+      <td class="rechazado">&nbsp;</td>
+      <td class="sin-datos">&nbsp;</td>
+      <td class="no-verificado">&nbsp;</td>
+    </tr>
+  </tbody>
+</table>
+
+<br><div><img src="/{{folder}}/qrimage.jpg" class="qr-img"></div>
+<div><a href="/{{folder}}/{{file}}" download class="btn_link">Descargar informe técnico</a></div><br><br>
+
+<script>
+// set the dimensions and margins of the graph
+var margin = {top: 10, right: 10, bottom: 10, left: 10},
+  width = 1800 - margin.left - margin.right,
+  height = 900 - margin.top - margin.bottom;
+
+// append the svg object to the body of the page
+var svg = d3.select("#my_dataviz")
+.append("svg")
+.attr("width", width + margin.left + margin.right)
+.attr("height", height + margin.top + margin.bottom)
+.append("g")
+.attr("transform",
+      "translate(" + margin.left + "," + margin.top + ")");
+
+// read json data
+d3.json({{json|tojson|safe}},function(data) {
+    if(data) { console.log("<true>",data) }
+    else {  
+        data = JSON.parse({{jsonData|tojson|safe}})
+        console.log("<false>", data)
+    }
+  // Give the data to this cluster layout:
+  var root = d3.hierarchy(data).sum(function(d){ return d.value}) // Here the size of each leave is given in the 'value' field in input data
+
+  // Then d3.treemap computes the position of each element of the hierarchy
+  d3.treemap()
+    .size([width, height])
+    .paddingTop(28)
+    .paddingRight(7)
+    .paddingInner(3)      // Padding between each rectangle
+    (root)
+
+  // prepare a color scale
+  var color = d3.scaleOrdinal()
+    .domain(["Rechazado", "S/Datos", "Aprobado", "No/Verificado"])
+    .range(["#F74B4B", "#9999CC", "#70C156", "#FF9933"])
+
+  // And a opacity scale
+  var opacity = d3.scaleLinear()
+    .domain([10, 30])
+    .range([.5,1])
+
+  // use this information to add rectangles:
+  svg
+    .selectAll("rect")
+    .data(root.leaves())
+    .enter()
+    .append("rect")
+    .attr('x', function (d) { return d.x0; })
+    .attr('y', function (d) { return d.y0; })
+    .attr('width', function (d) { return d.x1 - d.x0; })
+    .attr('height', function (d) { return d.y1 - d.y0; })
+    .style("fill", function(d){ return color(d.data.name)} )
+  // and to add the text labels
+  svg
+    .selectAll("text")
+    .data(root.leaves())
+    .enter()
+    .append("text")
+    .attr("x", function(d){ return d.x0+5})    // +10 to adjust position (more right)
+    .attr("y", function(d){ return d.y0+20})    // +20 to adjust position (lower)
+    .text(function(d){ return d.data.group+d.data.fn })
+    .attr("font-size", "14px")
+	  .attr("font-family", "Helvetica, Arial")
+    .attr("fill", "white")
+      
+  // and to add the text labels
+  svg
+    .selectAll("vals")
+    .data(root.leaves())
+    .enter()
+    .append("text")
+    .attr("x", function(d){ return d.x0+5})    // +10 to adjust position (more right)
+    .attr("y", function(d){ return d.y0+35})    // +20 to adjust position (lower)
+    .text(function(d){ return d.data.name })
+    .attr("font-size", "10px")
+    .attr("font-family", "Helvetica, Arial")
+    .attr("fill", "white")
+
+  // Add title for the 3 groups
+  svg
+    .selectAll("titles")
+    .data(root.descendants().filter(function(d){return d.depth==1}))
+    .enter()
+    .append("text")
+    .attr("x", function(d){ return d.x0})
+    .attr("y", function(d){ return d.y0+21})
+    .text(function(d){ return d.data.name })
+    .style("stroke", "grey")
+    .attr("font-size", "14px")
+    .attr("font-family", "Helvetica, Arial")
+    .attr("fill",  "grey")
+
+  // Add title for the 3 groups
+  svg
+    .append("text")
+      .attr("x", 0)
+      .attr("y", 12)    // +20 to adjust position (lower)
+      .text("Estándar de Datos para la Educación (EDE) - Grupos de verificaciones")
+      .attr("font-size", "24px")
+      .attr("font-family", "Helvetica, Arial")
+      .style("stroke", "black")
+      .attr("fill",  "black" )
+})
+</script>

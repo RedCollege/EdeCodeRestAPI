@@ -1,0 +1,8 @@
+.qr-img { width:300px; height: 300px;  }
+.btn_link { padding: 10px 37px; border-radius: 10px; background-color:#6699CC; color:#ffffff; text-decoration: none; font-family: Helvetica, Arial, "sans-serif"; font-size: 14px; margin-left: 30px; }
+.reporte {margin: 20px}
+.aprobado {background-color:#70C156;}
+.rechazado {background-color:#F74B4B ;}
+.sin-datos {background-color:#9999CC ;}
+.no-verificado {background-color:#FF9933 ;}
+table {font-family: Helvetica, Arial, "sans-serif"; font-size: 13px;margin: 20px}

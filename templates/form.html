@@ -1,0 +1,21 @@
+<!doctype html>
+<title>Formulario de prueba</title>
+<h2>Seleccione el archivo a cargar para el comando: CHECK </h2>
+<form method="post" action="/upload" enctype="multipart/form-data">
+    <dl>
+        <p>
+            <input type="hidden" name="action" value="check">
+            <input type="file" name="file" autocomplete="off" required>
+            <label for="run">RUN:</label><br>
+            <input type="text" name="run" autocomplete="off" required>
+            <label for="otp">OTP:</label><br>            
+            <input type="number" name="otp" pattern="[0-9]{6}" autocomplete="off" required>
+            <label for="rbd">RBD:</label><br>            
+            <input type="number" name="rbd" pattern="[0-9]{1,6}" autocomplete="off" required>
+
+		</p>
+    </dl>
+    <p>
+		<input type="submit" value="Submit">
+	</p>
+</form>
