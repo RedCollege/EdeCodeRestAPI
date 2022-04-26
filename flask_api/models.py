@@ -97,6 +97,7 @@ class routeCommand:
             print(zip_ref.namelist())
         
         return zip_ref.namelist()
+
     
     def getCheckCommand(self):
         print("Check command")    
@@ -107,7 +108,7 @@ class routeCommand:
         print(f"encriptPath: {encriptPath}")
         print(f"dbPath: {dbPath}")
         if(encriptPath and dbPath):
-            os.system(f"openssl rsautl -oaep -decrypt -inkey /app/claveprivada.pem -in {encriptPath[0]} -out {self.pathRootDirectory}/{self.t_stamp}_key.txt")
+            os.system(f"openssl rsautl -oaep -decrypt -inkey static/claveprivada.pem -in {encriptPath[0]} -out {self.pathRootDirectory}/{self.t_stamp}_key.txt")
             if(os.path.exists(f"{self.pathRootDirectory}/{self.t_stamp}_key.txt")):
                 with open (f"{self.pathRootDirectory}/{self.t_stamp}_key.txt", "r") as myfile:
                     frase_secreta=myfile.readlines()
@@ -119,8 +120,39 @@ class routeCommand:
         else:
             self.cmd = f"python3 {self.pathExecFile} check --help"
         return self.cmd
+    
+
+    def saveFile(self, file):
+        filename = secure_filename(file.filename)
+        fullPath_file = os.path.join(self.pathRootDirectory, filename)
+        file.save(fullPath_file)
+        self.url_file = fullPath_file
+        return fullPath_file
+
+    def getParseCommand(self):
+        print("Parse Command Started")
+        print(f"Command to execute: python3 {self.pathExecFile} parse json {self.url_file}")
+        self.cmd = f"python3 {self.pathExecFile} parse json {self.url_file}"
+        return self.cmd
+
+    def getInsertCommand(self):
+        print("Insert Command Started")
+        print(f"Command to execute: python3 {self.pathExecFile} insert -e admin@ede.mineduc.cl -o bd_encrypted.zip")
+        self.ins_cmd = f"python3 {self.pathExecFile} insert -e admin@ede.mineduc.cl -o bd_encrypted.zip"
+        return self.ins_cmd
 
     def execute(self,cmd,cwd):
+        try:
+            completedProcess = subprocess.run(cmd,cwd=cwd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=900,universal_newlines=True)
+            response = make_response(completedProcess.stdout, 200)
+            response.mimetype = "text/plain"
+            return response
+        except subprocess.TimeoutExpired:
+            response = make_response("Timedout", 400)
+            response.mimetype = "text/plain"
+            return response
+
+    def executeInsert(self,cmd,cwd):
         try:
             completedProcess = subprocess.run(cmd,cwd=cwd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=900,universal_newlines=True)
             response = make_response(completedProcess.stdout, 200)

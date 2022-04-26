@@ -103,9 +103,32 @@ def upload_file_route():
         abort(404,u"No se pudo desencriptar el archivo. Recuerde usar: parseCSVtoEDE.py insert -e admin@ede.mineduc.cl")
     return upload_file_view(rCmd)
 
+
+@app.route('/convertToCSV/<establecimiento_id>', methods=['POST'])
+def convert_to_csv(establecimiento_id):
+    if request.method == 'POST':
+        rCmd = routeCommand() #set session
+        file = request.files['file']
+        if file:
+            rCmd.initEnviroment()
+            rCmd.saveFile(file)
+            rCmd.getParseCommand()
+            rCmd.execute(rCmd.cmd, cwd=rCmd.pathRootDirectory)
+            print(sorted(os.listdir(rCmd.pathRootDirectory)))
+
+
+            rCmd.getInsertCommand()
+            rCmd.executeInsert(rCmd.ins_cmd, cwd=rCmd.pathRootDirectory)
+            
+            print(sorted(os.listdir(rCmd.pathRootDirectory)))
+            dataFile = [f for f in sorted(os.listdir(rCmd.pathRootDirectory)) if (str(f))[-9:] == "_Data.zip"]
+            print(dataFile)
+            if(dataFile):
+                return send_from_directory(rCmd.pathRootDirectory, 'bd_encrypted.zip', as_attachment=True)
+
 if __name__ == "__main__":
     app.run(
-        debug = os.environ.get('DEBUG', False), 
+        debug = os.environ.get('DEBUG', True), 
         host = "0.0.0.0", 
         port = int(os.environ.get('PORT', 8080))
         )
