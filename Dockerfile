@@ -6,7 +6,7 @@ RUN apt-get install -y cron
 ENV PYTHONUNBUFFERED True
 ENV MONGO_URL mongodb://mongo:27017/reportdb
 ENV PORT 8080
-ENV DEBUG True
+ENV DEBUG False
 ENV OTP_SERVICE https://claveunicagobcl.firebaseapp.com/verifyOTPFromSimple
 ENV X_API_KEY << API KEY del servicio del verificador de identidad >>
 

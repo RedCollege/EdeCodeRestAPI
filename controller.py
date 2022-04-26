@@ -104,8 +104,8 @@ def upload_file_route():
     return upload_file_view(rCmd)
 
 
-@app.route('/convertToCSV/<establecimiento_id>', methods=['POST'])
-def convert_to_csv(establecimiento_id):
+@app.route('/exportarEstandarEncriptado', methods=['POST'])
+def convert_to_csv():
     if request.method == 'POST':
         rCmd = routeCommand() #set session
         file = request.files['file']
