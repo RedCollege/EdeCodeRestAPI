@@ -17,11 +17,11 @@ RUN crontab /etc/cron.d/cron-test
 
 # Copy local code to the container image.
 RUN mkdir /app
-ENV APP_HOME /app
-WORKDIR $APP_HOME
-COPY . .
-EXPOSE 5000
+WORKDIR /app
+ADD requirements.txt /app
 RUN pip install --no-cache-dir -r requirements.txt
-RUN chmod +x ./entrypoint.sh
+ADD . /app
 
+EXPOSE 5000
+RUN chmod +x ./entrypoint.sh
 ENTRYPOINT ["sh", "entrypoint.sh"]

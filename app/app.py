@@ -10,7 +10,7 @@ from flask_api.settings import *
 from flask_api.models import *
 from flask_api import models
 from flask_api.views import check_view , check_result_view , app_file_view, upload_file_view, report_view, rbd_view
-
+app = Flask(__name__)
 @app.errorhandler(500)
 def resource_not_found(e):
     return jsonify(error=str(e)), 500
@@ -108,6 +108,10 @@ def upload_file_route():
 def convert_to_csv():
     if request.method == 'POST':
         rCmd = routeCommand() #set session
+        print('entered here')
+        print(request.files)
+        if 'file' not in request.files:
+            print('not file present')
         file = request.files['file']
         if file:
             rCmd.initEnviroment()
@@ -124,11 +128,7 @@ def convert_to_csv():
             dataFile = [f for f in sorted(os.listdir(rCmd.pathRootDirectory)) if (str(f))[-9:] == "_Data.zip"]
             print(dataFile)
             if(dataFile):
-                return send_from_directory(rCmd.pathRootDirectory, 'bd_encrypted.zip', as_attachment=True)
+                return send_from_directory(rCmd.pathRootDirectory, 'bd_encrypted.zip', as_attachment=True, mimetype="application/zip")
 
 if __name__ == "__main__":
-    app.run(
-        debug = os.environ.get('DEBUG', True), 
-        host = "0.0.0.0", 
-        port = int(os.environ.get('PORT', 8080))
-        )
+    app.run(host='0.0.0.0')
